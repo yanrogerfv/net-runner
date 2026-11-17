@@ -114,17 +114,24 @@
                 <h1 class="font-orbitron font-black text-xl text-cyberCyan tracking-wider text-glow-cyan">NET-RUNNER <span class="text-xs font-normal text-slate-400">v1.0.4</span></h1>
             </div>
             
-            <div id="global-stats" class="hidden flex items-center space-x-6 text-sm">
-                <div class="flex items-center space-x-2 bg-cyberDark/80 px-3 py-1 rounded border border-cyberBorder">
-                    <span class="text-slate-400">SECTOR:</span>
-                    <span id="stat-sector" class="font-bold text-cyberCyan font-orbitron">1 / 4</span>
+            <div class="flex items-center space-x-4">
+                <div id="global-stats" class="hidden flex items-center space-x-4 sm:space-x-6 text-sm">
+                    <div class="flex items-center space-x-2 bg-cyberDark/80 px-3 py-1 rounded border border-cyberBorder">
+                        <span id="lbl-sector" class="text-slate-400">SECTOR:</span>
+                        <span id="stat-sector" class="font-bold text-cyberCyan font-orbitron">1 / 4</span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-cyberDark/80 px-3 py-1 rounded border border-cyberBorder">
+                        <span id="lbl-credits" class="text-slate-400">CREDITS:</span>
+                        <span id="stat-credits" class="font-bold text-cyberAmber font-orbitron">0</span>
+                    </div>
+                    <button onclick="openDeckModal()" class="px-3 py-1 bg-cyberCard hover:bg-cyberBorder text-cyberCyan border border-cyberCyan/40 rounded transition flex items-center space-x-1 font-orbitron text-xs">
+                        <span><span id="lbl-deck">DECK</span> (<span id="stat-deck-count">8</span>)</span>
+                    </button>
                 </div>
-                <div class="flex items-center space-x-2 bg-cyberDark/80 px-3 py-1 rounded border border-cyberBorder">
-                    <span class="text-slate-400">CREDITS:</span>
-                    <span id="stat-credits" class="font-bold text-cyberAmber font-orbitron">0</span>
-                </div>
-                <button onclick="openDeckModal()" class="px-3 py-1 bg-cyberCard hover:bg-cyberBorder text-cyberCyan border border-cyberCyan/40 rounded transition flex items-center space-x-1 font-orbitron text-xs">
-                    <span>DECK (<span id="stat-deck-count">8</span>)</span>
+
+                <!-- LANGUAGE TOGGLE -->
+                <button onclick="toggleLanguage()" id="lang-toggle-btn" class="px-3 py-1 bg-cyberDark hover:bg-cyberCard text-cyberAmber border border-cyberAmber/50 rounded transition font-orbitron text-xs font-bold tracking-wider">
+                    EN | PT
                 </button>
             </div>
         </div>
@@ -136,14 +143,14 @@
         <!-- SCREEN 1: TITLE SCREEN -->
         <div id="screen-title" class="flex flex-col items-center text-center space-y-8 py-12 max-w-2xl">
             <div class="space-y-3">
-                <div class="inline-block px-4 py-1 bg-cyberPink/10 border border-cyberPink/30 text-cyberPink rounded-full text-xs font-orbitron tracking-widest uppercase mb-2">Cyberpunk Rogue-Lite Deckbuilder</div>
-                <h2 class="font-orbitron font-black text-5xl md:text-6xl text-white tracking-widest text-glow-cyan uppercase">GRID ASCENT</h2>
-                <p class="text-slate-400 text-lg max-w-lg mx-auto">Infiltrate the mega-corp mainframes, compile exploits into your deck, and purge the central daemon before your neural link flatlines.</p>
+                <div id="title-badge" class="inline-block px-4 py-1 bg-cyberPink/10 border border-cyberPink/30 text-cyberPink rounded-full text-xs font-orbitron tracking-widest uppercase mb-2">Cyberpunk Rogue-Lite Deckbuilder</div>
+                <h2 id="title-main" class="font-orbitron font-black text-5xl md:text-6xl text-white tracking-widest text-glow-cyan uppercase">GRID ASCENT</h2>
+                <p id="title-desc" class="text-slate-400 text-lg max-w-lg mx-auto">Infiltrate the mega-corp mainframes, compile exploits into your deck, and purge the central daemon before your neural link flatlines.</p>
             </div>
 
             <div class="p-6 bg-cyberPanel/80 border border-cyberBorder rounded-xl glow-cyan w-full text-left space-y-4">
-                <h3 class="font-orbitron text-cyberCyan text-sm tracking-wider uppercase border-b border-cyberBorder pb-2">Operational Directives:</h3>
-                <ul class="text-sm space-y-2 text-slate-300">
+                <h3 id="title-directives-header" class="font-orbitron text-cyberCyan text-sm tracking-wider uppercase border-b border-cyberBorder pb-2">Operational Directives:</h3>
+                <ul id="title-directives-list" class="text-sm space-y-2 text-slate-300">
                     <li class="flex items-start space-x-2">
                         <span class="text-cyberCyan font-bold">›</span>
                         <span>Manage your <strong>RAM (Energy)</strong> each turn to deploy attack routines and firewall patches.</span>
@@ -159,7 +166,7 @@
                 </ul>
             </div>
 
-            <button onclick="startNewRun()" class="px-8 py-4 bg-cyberCyan text-cyberDark font-orbitron font-bold text-lg rounded-lg glow-cyan hover:bg-white hover:shadow-[0_0_25px_rgba(255,255,255,0.7)] transition transform hover:-translate-y-1">
+            <button id="btn-start-run" onclick="startNewRun()" class="px-8 py-4 bg-cyberCyan text-cyberDark font-orbitron font-bold text-lg rounded-lg glow-cyan hover:bg-white hover:shadow-[0_0_25px_rgba(255,255,255,0.7)] transition transform hover:-translate-y-1">
                 INITIALIZE RUN
             </button>
         </div>
@@ -167,8 +174,8 @@
         <!-- SCREEN 2: RUN MAP -->
         <div id="screen-map" class="hidden flex flex-col items-center w-full space-y-8 py-6">
             <div class="text-center space-y-2">
-                <h2 class="font-orbitron text-2xl md:text-3xl font-bold text-cyberCyan text-glow-cyan uppercase">SECTOR MAP // UPLINK ROUTE</h2>
-                <p class="text-slate-400 text-sm">Select the next node to breach.</p>
+                <h2 id="map-title" class="font-orbitron text-2xl md:text-3xl font-bold text-cyberCyan text-glow-cyan uppercase">SECTOR MAP // UPLINK ROUTE</h2>
+                <p id="map-subtitle" class="text-slate-400 text-sm">Select the next node to breach.</p>
             </div>
 
             <div id="map-nodes-container" class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full max-w-5xl my-6">
@@ -197,7 +204,7 @@
                     
                     <div class="space-y-2">
                         <div class="flex justify-between text-xs font-orbitron">
-                            <span class="text-slate-400">INTEGRITY (HP)</span>
+                            <span id="lbl-integrity" class="text-slate-400">INTEGRITY (HP)</span>
                             <span id="combat-player-hp-text" class="text-cyberCyan font-bold">50 / 50</span>
                         </div>
                         <div class="w-full bg-cyberDark h-3 rounded-full overflow-hidden border border-cyberBorder">
@@ -207,11 +214,11 @@
 
                     <div class="flex items-center justify-between mt-3 text-xs">
                         <div class="flex items-center space-x-1 text-cyberCyan">
-                            <span>SHIELD:</span>
+                            <span id="lbl-player-shield">SHIELD:</span>
                             <span id="combat-player-shield" class="font-bold font-orbitron">0</span>
                         </div>
                         <div class="text-slate-400">
-                            Deck: <span id="combat-deck-count" class="text-white font-bold">0</span> | Disc: <span id="combat-disc-count" class="text-white font-bold">0</span>
+                            <span id="lbl-pile-deck">Deck</span>: <span id="combat-deck-count" class="text-white font-bold">0</span> | <span id="lbl-pile-disc">Disc</span>: <span id="combat-disc-count" class="text-white font-bold">0</span>
                         </div>
                     </div>
                 </div>
@@ -224,14 +231,14 @@
                             <span id="combat-enemy-name" class="font-orbitron font-bold text-cyberPink tracking-wider">SUBNET SCOUT</span>
                         </div>
                         <div class="bg-cyberPink/10 border border-cyberPink/30 px-3 py-1 rounded text-xs text-cyberPink font-orbitron flex items-center space-x-1">
-                            <span>INTENT:</span>
+                            <span id="lbl-intent">INTENT:</span>
                             <span id="combat-enemy-intent" class="font-bold">Attack (6)</span>
                         </div>
                     </div>
 
                     <div class="space-y-2">
                         <div class="flex justify-between text-xs font-orbitron">
-                            <span class="text-slate-400">DAEMON CORE (HP)</span>
+                            <span id="lbl-daemon-core" class="text-slate-400">DAEMON CORE (HP)</span>
                             <span id="combat-enemy-hp-text" class="text-cyberPink font-bold">35 / 35</span>
                         </div>
                         <div class="w-full bg-cyberDark h-3 rounded-full overflow-hidden border border-cyberBorder">
@@ -241,7 +248,7 @@
 
                     <div class="flex items-center justify-between mt-3 text-xs">
                         <div class="flex items-center space-x-1 text-cyberPink">
-                            <span>SHIELD:</span>
+                            <span id="lbl-enemy-shield">SHIELD:</span>
                             <span id="combat-enemy-shield" class="font-bold font-orbitron">0</span>
                         </div>
                         <div id="combat-enemy-status" class="text-slate-400 text-xs italic"></div>
@@ -256,7 +263,7 @@
                     <div class="text-cyberCyan">&gt; Infiltration sequence engaged. Execute exploit cards.</div>
                 </div>
                 <div class="md:col-span-1 flex flex-col justify-center">
-                    <button onclick="endPlayerTurn()" class="w-full py-4 bg-gradient-to-r from-cyberPink to-purple-600 text-white font-orbitron font-bold rounded-xl glow-pink hover:opacity-90 transition active:scale-95 text-center">
+                    <button id="btn-end-turn" onclick="endPlayerTurn()" class="w-full py-4 bg-gradient-to-r from-cyberPink to-purple-600 text-white font-orbitron font-bold rounded-xl glow-pink hover:opacity-90 transition active:scale-95 text-center">
                         END TURN
                     </button>
                 </div>
@@ -265,8 +272,8 @@
             <!-- PLAYER HAND CONTAINER -->
             <div class="bg-cyberPanel/90 border border-cyberBorder rounded-xl p-4 w-full">
                 <div class="text-xs font-orbitron text-slate-400 mb-2 flex justify-between items-center">
-                    <span>ACTIVE EXPLOIT HAND</span>
-                    <span>Click card to compile & execute</span>
+                    <span id="lbl-active-hand">ACTIVE EXPLOIT HAND</span>
+                    <span id="lbl-click-compile">Click card to compile & execute</span>
                 </div>
                 <div id="player-hand" class="flex flex-wrap justify-center gap-3 min-h-[170px] items-center">
                     <!-- Cards injected dynamically -->
@@ -278,16 +285,16 @@
         <!-- SCREEN 4: REWARD SCREEN -->
         <div id="screen-reward" class="hidden flex flex-col items-center w-full space-y-6 py-8 max-w-3xl">
             <div class="text-center space-y-2">
-                <div class="text-cyberCyan font-orbitron text-xs tracking-widest uppercase">SECTOR BREACHED SUCCESSFUL</div>
-                <h2 class="font-orbitron font-black text-3xl text-white text-glow-cyan">CODE REWARD ACQUIRED</h2>
-                <p class="text-slate-400 text-sm">Choose one exploit subroutine to integrate into your deck, or skip.</p>
+                <div id="reward-badge" class="text-cyberCyan font-orbitron text-xs tracking-widest uppercase">SECTOR BREACHED SUCCESSFUL</div>
+                <h2 id="reward-title" class="font-orbitron font-black text-3xl text-white text-glow-cyan">CODE REWARD ACQUIRED</h2>
+                <p id="reward-subtitle" class="text-slate-400 text-sm">Choose one exploit subroutine to integrate into your deck, or skip.</p>
             </div>
 
             <div id="reward-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full my-4">
                 <!-- Reward cards injected here -->
             </div>
 
-            <button onclick="skipReward()" class="px-6 py-2 bg-cyberCard hover:bg-cyberBorder text-slate-300 border border-cyberBorder rounded-lg font-orbitron text-sm transition">
+            <button id="btn-skip-reward" onclick="skipReward()" class="px-6 py-2 bg-cyberCard hover:bg-cyberBorder text-slate-300 border border-cyberBorder rounded-lg font-orbitron text-sm transition">
                 Skip Reward & Proceed
             </button>
         </div>
@@ -298,10 +305,10 @@
                 ✕
             </div>
             <div class="space-y-2">
-                <h2 class="font-orbitron font-black text-4xl text-cyberPink text-glow-pink">NEURAL LINK SEVERED</h2>
-                <p class="text-slate-400 text-sm">Your firewall was breached and core integrity flatlined in Sector <span id="gameover-sector">1</span>.</p>
+                <h2 id="gameover-title" class="font-orbitron font-black text-4xl text-cyberPink text-glow-pink">NEURAL LINK SEVERED</h2>
+                <p id="gameover-desc" class="text-slate-400 text-sm">Your firewall was breached and core integrity flatlined in Sector <span id="gameover-sector">1</span>.</p>
             </div>
-            <button onclick="resetToTitle()" class="px-8 py-3 bg-cyberPink text-white font-orbitron font-bold rounded-lg glow-pink hover:opacity-90 transition">
+            <button id="btn-reinit" onclick="resetToTitle()" class="px-8 py-3 bg-cyberPink text-white font-orbitron font-bold rounded-lg glow-pink hover:opacity-90 transition">
                 REINITIALIZE SYSTEM
             </button>
         </div>
@@ -312,20 +319,20 @@
                 ✓
             </div>
             <div class="space-y-2">
-                <h2 class="font-orbitron font-black text-4xl text-cyberCyan text-glow-cyan">OMEGA CORE PURGED</h2>
-                <p class="text-slate-400 text-sm">You successfully navigated all 4 sectors, defeated the Sentient Daemon, and downloaded classified corporate secrets.</p>
+                <h2 id="victory-title" class="font-orbitron font-black text-4xl text-cyberCyan text-glow-cyan">OMEGA CORE PURGED</h2>
+                <p id="victory-desc" class="text-slate-400 text-sm">You successfully navigated all 4 sectors, defeated the Sentient Daemon, and downloaded classified corporate secrets.</p>
             </div>
             <div class="p-4 bg-cyberPanel border border-cyberBorder rounded-xl w-full text-left space-y-2 font-orbitron text-xs">
                 <div class="flex justify-between">
-                    <span class="text-slate-400">FINAL CREDITS EARNED:</span>
+                    <span id="lbl-victory-credits" class="text-slate-400">FINAL CREDITS EARNED:</span>
                     <span id="victory-credits" class="text-cyberAmber">0</span>
                 </div>
                 <div class="flex justify-between">
-                    <span class="text-slate-400">DECK SIZE:</span>
+                    <span id="lbl-victory-deck" class="text-slate-400">DECK SIZE:</span>
                     <span id="victory-deck-size" class="text-cyberCyan">0</span>
                 </div>
             </div>
-            <button onclick="resetToTitle()" class="px-8 py-3 bg-cyberCyan text-cyberDark font-orbitron font-bold rounded-lg glow-cyan hover:bg-white transition">
+            <button id="btn-new-run-victory" onclick="resetToTitle()" class="px-8 py-3 bg-cyberCyan text-cyberDark font-orbitron font-bold rounded-lg glow-cyan hover:bg-white transition">
                 PLAY NEW RUN
             </button>
         </div>
@@ -336,8 +343,8 @@
     <div id="deck-modal" class="fixed inset-0 bg-cyberDark/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-cyberPanel border border-cyberBorder rounded-xl max-w-3xl w-full p-6 space-y-4 glow-cyan max-h-[80vh] flex flex-col">
             <div class="flex justify-between items-center border-b border-cyberBorder pb-3">
-                <h3 class="font-orbitron font-bold text-cyberCyan text-lg">CURRENT DECK MANIFEST</h3>
-                <button onclick="closeDeckModal()" class="text-slate-400 hover:text-white font-orbitron">✕ CLOSE</button>
+                <h3 id="modal-deck-title" class="font-orbitron font-bold text-cyberCyan text-lg">CURRENT DECK MANIFEST</h3>
+                <button id="btn-close-modal" onclick="closeDeckModal()" class="text-slate-400 hover:text-white font-orbitron">✕ CLOSE</button>
             </div>
             <div id="deck-modal-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 overflow-y-auto p-2 flex-grow">
                 <!-- Modal cards injected here -->
@@ -346,12 +353,261 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="w-full text-center py-4 border-t border-cyberBorder text-slate-500 text-xs font-orbitron tracking-wider">
+    <footer id="footer-text" class="w-full text-center py-4 border-t border-cyberBorder text-slate-500 text-xs font-orbitron tracking-wider">
         NET-RUNNER: GRID ASCENT // SECURE CONNECTION ESTABLISHED
     </footer>
 
     <!-- GAME LOGIC SCRIPT -->
     <script>
+        /* --- LOCALIZATION DICTIONARY --- */
+        let currentLang = 'en';
+
+        const I18N = {
+            en: {
+                sector: 'SECTOR:',
+                credits: 'CREDITS:',
+                deck: 'DECK',
+                titleBadge: 'Cyberpunk Rogue-Lite Deckbuilder',
+                titleMain: 'GRID ASCENT',
+                titleDesc: 'Infiltrate the mega-corp mainframes, compile exploits into your deck, and purge the central daemon before your neural link flatlines.',
+                directivesHeader: 'Operational Directives:',
+                directives: [
+                    'Manage your <strong>RAM (Energy)</strong> each turn to deploy attack routines and firewall patches.',
+                    'Analyze enemy <strong>Daemon Intents</strong> before making your tactical moves.',
+                    'Clear 4 sectors: Subnet, Corp Relay, Security Daemon, and the Omega Core.'
+                ],
+                startRun: 'INITIALIZE RUN',
+                mapTitle: 'SECTOR MAP // UPLINK ROUTE',
+                mapSubtitle: 'Select the next node to breach.',
+                nodeLocked: 'LOCKED',
+                nodeCleared: 'CLEARED',
+                nodeActive: 'ACTIVE NODE',
+                nodeBreach: '▶ BREACH',
+                sectorPrefix: 'SECTOR',
+                integrity: 'INTEGRITY (HP)',
+                shield: 'SHIELD:',
+                pileDeck: 'Deck',
+                pileDisc: 'Disc',
+                intent: 'INTENT:',
+                daemonCore: 'DAEMON CORE (HP)',
+                endTurn: 'END TURN',
+                activeHand: 'ACTIVE EXPLOIT HAND',
+                clickCompile: 'Click card to compile & execute',
+                cardTypeAttack: 'ATTACK',
+                cardTypeSkill: 'SKILL',
+                rewardBadge: 'SECTOR BREACHED SUCCESSFUL',
+                rewardTitle: 'CODE REWARD ACQUIRED',
+                rewardSubtitle: 'Choose one exploit subroutine to integrate into your deck, or skip.',
+                integrateSub: 'INTEGRATE SUBROUTINE',
+                skipReward: 'Skip Reward & Proceed',
+                gameoverTitle: 'NEURAL LINK SEVERED',
+                gameoverDesc: (sec) => `Your firewall was breached and core integrity flatlined in Sector <span id="gameover-sector">${sec}</span>.`,
+                reinit: 'REINITIALIZE SYSTEM',
+                victoryTitle: 'OMEGA CORE PURGED',
+                victoryDesc: 'You successfully navigated all 4 sectors, defeated the Sentient Daemon, and downloaded classified corporate secrets.',
+                victoryCredits: 'FINAL CREDITS EARNED:',
+                victoryDeck: 'DECK SIZE:',
+                playNewRun: 'PLAY NEW RUN',
+                deckManifest: 'CURRENT DECK MANIFEST',
+                close: '✕ CLOSE',
+                footer: 'NET-RUNNER: GRID ASCENT // SECURE CONNECTION ESTABLISHED',
+                // Logs & dynamic messages
+                logRestoredHp: (amt) => `Restored ${amt} HP.`,
+                logRamSurge: 'RAM Surge executed (+2 RAM).',
+                logInfiltrated: (secName, enemyName) => `Infiltrated ${secName}. Enemy daemon [${enemyName}] detected.`,
+                logTurnStart: (ram) => `--- Player Turn Started. RAM restored to ${ram}. ---`,
+                logNoRam: (name) => `[ERROR] Insufficient RAM to compile ${name}.`,
+                logExecuted: (name) => `Executed subroutine: <span class="text-cyberCyan">${name}</span>`,
+                logDealtDmg: (amt) => `Dealt <span class="text-cyberPink">${amt}</span> damage to enemy.`,
+                logGainShield: (amt) => `Compiled firewall defense: +<span class="text-cyberCyan">${amt}</span> Shield.`,
+                logSelfDmg: (amt) => `[WARNING] Firewall overload! Took <span class="text-cyberPink">${amt}</span> self-damage.`,
+                logEndTurn: '--- End of Player Turn. Daemon processing... ---',
+                logEnemyFortify: (amt) => `Enemy fortifies systems: +${amt} Shield.`,
+                logEnemyCombo: 'Enemy executes combo strike & fortify.',
+                logEnemyAttack: (amt) => `Enemy attacks for <span class="text-cyberPink">${amt}</span> damage.`,
+                logSectorClear: (creds) => `Sector cleared! Earned ${creds} credits.`,
+                // Cards
+                cards: {
+                    data_spike: { name: 'Data Spike', desc: 'Deal 6 damage to enemy daemon.' },
+                    firewall_patch: { name: 'Firewall Patch', desc: 'Gain 5 Shield.' },
+                    overclock: { name: 'Overclock', desc: 'Gain 1 RAM and draw 1 card.' },
+                    emp_blast: { name: 'EMP Blast', desc: 'Deal 14 heavy damage.' },
+                    neural_hack: { name: 'Neural Hack', desc: 'Draw 2 cards from deck.' },
+                    ice_breaker: { name: 'ICE Breaker', desc: 'Deal 8 damage and strip 4 enemy shield.' },
+                    deep_sleep: { name: 'Deep Sleep', desc: 'Restore 6 Integrity (HP).' },
+                    overload_protocol: { name: 'Overload Protocol', desc: 'Deal 22 damage, take 4 self-damage.' },
+                    ram_surge: { name: 'RAM Surge', desc: 'Instantly gain 2 RAM.' }
+                },
+                // Sectors & Enemies
+                sectors: [
+                    { name: 'Sector 1: Subnet', enemyName: 'Subnet Scout', intents: ['Attack (6)', 'Fortify (5)'] },
+                    { name: 'Sector 2: Corp Relay', enemyName: 'Corp Relay Enforcer', intents: ['Attack (10)', 'Fortify (8)', 'Attack (5) + Shield (5)'] },
+                    { name: 'Sector 3: Security Daemon', enemyName: 'Black ICE Daemon', intents: ['Heavy Attack (14)', 'Fortify (12)', 'Attack (8)'] },
+                    { name: 'Sector 4: Central Core', enemyName: 'Omega Core Sentient', intents: ['Core Strike (18)', 'Reinforce (15)', 'Burst Strike (7x2)'] }
+                ]
+            },
+            pt: {
+                sector: 'SETOR:',
+                credits: 'CRÉDITOS:',
+                deck: 'BARALHO',
+                titleBadge: 'Deckbuilder Rogue-Lite Cyberpunk',
+                titleMain: 'ASCENSÃO NA REDE',
+                titleDesc: 'Infiltre-se nos mainframes das megacorporações, compile exploits no seu baralho e expurgue o daemon central antes que seu elo neural caia.',
+                directivesHeader: 'Diretrizes Operacionais:',
+                directives: [
+                    'Gerencie sua <strong>RAM (Energia)</strong> a cada turno para executar rotinas de ataque e defesas de firewall.',
+                    'Analise as <strong>Intenções do Daemon</strong> inimigo antes de fazer suas jogadas táticas.',
+                    'Limpe 4 setores: Sub-rede, Retransmissor Corp, Daemon de Segurança e o Núcleo Ômega.'
+                ],
+                startRun: 'INICIAR INVASÃO',
+                mapTitle: 'MAPA DE SETORES // ROTA DE UPLINK',
+                mapSubtitle: 'Selecione o próximo nó para invadir.',
+                nodeLocked: 'BLOQUEADO',
+                nodeCleared: 'CONCLUÍDO',
+                nodeActive: 'NÓ ATIVO',
+                nodeBreach: '▶ INVADIR',
+                sectorPrefix: 'SETOR',
+                integrity: 'INTEGRIDADE (PV)',
+                shield: 'ESCUDO:',
+                pileDeck: 'Compra',
+                pileDisc: 'Descarte',
+                intent: 'INTENÇÃO:',
+                daemonCore: 'NÚCLEO DAEMON (PV)',
+                endTurn: 'ENCERRAR TURNO',
+                activeHand: 'MÃO DE EXPLOITS ATIVA',
+                clickCompile: 'Clique na carta para compilar e executar',
+                cardTypeAttack: 'ATAQUE',
+                cardTypeSkill: 'TÉCNICA',
+                rewardBadge: 'SETOR INVADIDO COM SUCESSO',
+                rewardTitle: 'RECOMPENSA DE CÓDIGO ADQUIRIDA',
+                rewardSubtitle: 'Escolha uma sub-rotina de exploit para integrar ao seu baralho, ou pule.',
+                integrateSub: 'INTEGRAR SUB-ROTINA',
+                skipReward: 'Pular Recompensa e Avançar',
+                gameoverTitle: 'ELO NEURAL ROMPIDO',
+                gameoverDesc: (sec) => `Seu firewall foi violado e a integridade central caiu a zero no Setor <span id="gameover-sector">${sec}</span>.`,
+                reinit: 'REINICIALIZAR SISTEMA',
+                victoryTitle: 'NÚCLEO ÔMEGA EXPURGADO',
+                victoryDesc: 'Você navegou pelos 4 setores com sucesso, derrotou o Daemon Senciente e baixou os segredos corporativos.',
+                victoryCredits: 'CRÉDITOS FINAIS OBTIDOS:',
+                victoryDeck: 'TAMANHO DO BARALHO:',
+                playNewRun: 'JOGAR NOVA PARTIDA',
+                deckManifest: 'MANIFESTO DO BARALHO ATUAL',
+                close: '✕ FECHAR',
+                footer: 'NET-RUNNER: ASCENSÃO NA REDE // CONEXÃO SEGURA ESTABELECIDA',
+                // Logs & dynamic messages
+                logRestoredHp: (amt) => `Restaurou ${amt} de PV.`,
+                logRamSurge: 'Surto de RAM executado (+2 RAM).',
+                logInfiltrated: (secName, enemyName) => `Infiltrou ${secName}. Daemon inimigo [${enemyName}] detectado.`,
+                logTurnStart: (ram) => `--- Turno do Jogador Iniciado. RAM restaurada para ${ram}. ---`,
+                logNoRam: (name) => `[ERRO] RAM insuficiente para compilar ${name}.`,
+                logExecuted: (name) => `Sub-rotina executada: <span class="text-cyberCyan">${name}</span>`,
+                logDealtDmg: (amt) => `Causou <span class="text-cyberPink">${amt}</span> de dano ao inimigo.`,
+                logGainShield: (amt) => `Defesa de firewall compilada: +<span class="text-cyberCyan">${amt}</span> de Escudo.`,
+                logSelfDmg: (amt) => `[ALERTA] Sobrecarga de firewall! Sofreu <span class="text-cyberPink">${amt}</span> de dano.`,
+                logEndTurn: '--- Fim do Turno do Jogador. Daemon processando... ---',
+                logEnemyFortify: (amt) => `Inimigo fortifica sistemas: +${amt} de Escudo.`,
+                logEnemyCombo: 'Inimigo executa golpe combinado e fortificação.',
+                logEnemyAttack: (amt) => `Inimigo ataca causando <span class="text-cyberPink">${amt}</span> de dano.`,
+                logSectorClear: (creds) => `Setor limpo! Ganhou ${creds} créditos.`,
+                // Cards
+                cards: {
+                    data_spike: { name: 'Espigão de Dados', desc: 'Causa 6 de dano ao daemon inimigo.' },
+                    firewall_patch: { name: 'Patch de Firewall', desc: 'Ganha 5 de Escudo.' },
+                    overclock: { name: 'Overclock', desc: 'Ganha 1 de RAM e compra 1 carta.' },
+                    emp_blast: { name: 'Pulso PEM', desc: 'Causa 14 de dano pesado.' },
+                    neural_hack: { name: 'Hack Neural', desc: 'Compra 2 cartas do baralho.' },
+                    ice_breaker: { name: 'Quebra-GELO', desc: 'Causa 8 de dano e remove 4 de escudo inimigo.' },
+                    deep_sleep: { name: 'Sono Profundo', desc: 'Restaura 6 de Integridade (PV).' },
+                    overload_protocol: { name: 'Protocolo Sobrecarga', desc: 'Causa 22 de dano e sofre 4 de dano.' },
+                    ram_surge: { name: 'Surto de RAM', desc: 'Ganha 2 de RAM instantaneamente.' }
+                },
+                // Sectors & Enemies
+                sectors: [
+                    { name: 'Setor 1: Sub-rede', enemyName: 'Batedor de Sub-rede', intents: ['Atacar (6)', 'Fortificar (5)'] },
+                    { name: 'Setor 2: Retransmissor Corp', enemyName: 'Executor Corporativo', intents: ['Atacar (10)', 'Fortificar (8)', 'Atacar (5) + Escudo (5)'] },
+                    { name: 'Setor 3: Daemon de Segurança', enemyName: 'Daemon GELO Negro', intents: ['Ataque Pesado (14)', 'Fortificar (12)', 'Atacar (8)'] },
+                    { name: 'Setor 4: Núcleo Central', enemyName: 'Senciente Núcleo Ômega', intents: ['Golpe do Núcleo (18)', 'Reforçar (15)', 'Rajada (7x2)'] }
+                ]
+            }
+        };
+
+        function t() {
+            return I18N[currentLang];
+        }
+
+        function toggleLanguage() {
+            playSound('click');
+            currentLang = currentLang === 'en' ? 'pt' : 'en';
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const lang = t();
+            document.getElementById('lang-toggle-btn').innerText = currentLang === 'en' ? 'EN | PT' : 'PT | EN';
+            
+            // Header
+            document.getElementById('lbl-sector').innerText = lang.sector;
+            document.getElementById('lbl-credits').innerText = lang.credits;
+            document.getElementById('lbl-deck').innerText = lang.deck;
+
+            // Title Screen
+            document.getElementById('title-badge').innerText = lang.titleBadge;
+            document.getElementById('title-main').innerText = lang.titleMain;
+            document.getElementById('title-desc').innerText = lang.titleDesc;
+            document.getElementById('title-directives-header').innerText = lang.directivesHeader;
+            document.getElementById('title-directives-list').innerHTML = lang.directives.map(d => `
+                <li class="flex items-start space-x-2">
+                    <span class="text-cyberCyan font-bold">›</span>
+                    <span>${d}</span>
+                </li>
+            `).join('');
+            document.getElementById('btn-start-run').innerText = lang.startRun;
+
+            // Map Screen
+            document.getElementById('map-title').innerText = lang.mapTitle;
+            document.getElementById('map-subtitle').innerText = lang.mapSubtitle;
+
+            // Combat Screen
+            document.getElementById('lbl-integrity').innerText = lang.integrity;
+            document.getElementById('lbl-player-shield').innerText = lang.shield;
+            document.getElementById('lbl-pile-deck').innerText = lang.pileDeck;
+            document.getElementById('lbl-pile-disc').innerText = lang.pileDisc;
+            document.getElementById('lbl-intent').innerText = lang.intent;
+            document.getElementById('lbl-daemon-core').innerText = lang.daemonCore;
+            document.getElementById('lbl-enemy-shield').innerText = lang.shield;
+            document.getElementById('btn-end-turn').innerText = lang.endTurn;
+            document.getElementById('lbl-active-hand').innerText = lang.activeHand;
+            document.getElementById('lbl-click-compile').innerText = lang.clickCompile;
+
+            // Reward Screen
+            document.getElementById('reward-badge').innerText = lang.rewardBadge;
+            document.getElementById('reward-title').innerText = lang.rewardTitle;
+            document.getElementById('reward-subtitle').innerText = lang.rewardSubtitle;
+            document.getElementById('btn-skip-reward').innerText = lang.skipReward;
+
+            // Game Over & Victory
+            document.getElementById('gameover-title').innerText = lang.gameoverTitle;
+            document.getElementById('gameover-desc').innerHTML = lang.gameoverDesc(gameState.sectorIndex + 1);
+            document.getElementById('btn-reinit').innerText = lang.reinit;
+
+            document.getElementById('victory-title').innerText = lang.victoryTitle;
+            document.getElementById('victory-desc').innerText = lang.victoryDesc;
+            document.getElementById('lbl-victory-credits').innerText = lang.victoryCredits;
+            document.getElementById('lbl-victory-deck').innerText = lang.victoryDeck;
+            document.getElementById('btn-new-run-victory').innerText = lang.playNewRun;
+
+            // Modal & Footer
+            document.getElementById('modal-deck-title').innerText = lang.deckManifest;
+            document.getElementById('btn-close-modal').innerText = lang.close;
+            document.getElementById('footer-text').innerText = lang.footer;
+
+            // Re-render dynamic screens if active
+            if (gameState.screen === 'map') renderMap();
+            if (gameState.screen === 'combat' && gameState.enemy) updateCombatUI();
+            if (gameState.screen === 'reward' && gameState.rewardOptions.length > 0) renderRewardCards();
+            if (!document.getElementById('deck-modal').classList.contains('hidden')) openDeckModal();
+        }
+
         /* --- SOUND SYNTHESIZER (Web Audio API) --- */
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
@@ -402,25 +658,25 @@
 
         /* --- CARD DATABASE --- */
         const ALL_CARDS = {
-            data_spike: { id: 'data_spike', name: 'Data Spike', type: 'attack', cost: 1, desc: 'Deal 6 damage to enemy daemon.', action: (s) => { dealDamage(6); } },
-            firewall_patch: { id: 'firewall_patch', name: 'Firewall Patch', type: 'skill', cost: 1, desc: 'Gain 5 Shield.', action: (s) => { gainShield(5); } },
-            overclock: { id: 'overclock', name: 'Overclock', type: 'skill', cost: 0, desc: 'Gain 1 RAM and draw 1 card.', action: (s) => { gameState.player.ram += 1; drawCards(1); updateCombatUI(); } },
-            emp_blast: { id: 'emp_blast', name: 'EMP Blast', type: 'attack', cost: 2, desc: 'Deal 14 heavy damage.', action: (s) => { dealDamage(14); } },
-            neural_hack: { id: 'neural_hack', name: 'Neural Hack', type: 'skill', cost: 1, desc: 'Draw 2 cards from deck.', action: (s) => { drawCards(2); } },
-            ice_breaker: { id: 'ice_breaker', name: 'ICE Breaker', type: 'attack', cost: 1, desc: 'Deal 8 damage and strip 4 enemy shield.', action: (s) => { dealDamage(8); gameState.enemy.shield = Math.max(0, gameState.enemy.shield - 4); } },
-            deep_sleep: { id: 'deep_sleep', name: 'Deep Sleep', type: 'skill', cost: 1, desc: 'Restore 6 Integrity (HP).', action: (s) => { gameState.player.hp = Math.min(gameState.player.maxHp, gameState.player.hp + 6); updateCombatUI(); logCombat('Restored 6 HP.'); } },
-            overload_protocol: { id: 'overload_protocol', name: 'Overload Protocol', type: 'attack', cost: 2, desc: 'Deal 22 damage, take 4 self-damage.', action: (s) => { dealDamage(22); damagePlayerDirect(4); } },
-            ram_surge: { id: 'ram_surge', name: 'RAM Surge', type: 'skill', cost: 0, desc: 'Instantly gain 2 RAM.', action: (s) => { gameState.player.ram += 2; updateCombatUI(); logCombat('RAM Surge executed (+2 RAM).'); } }
+            data_spike: { id: 'data_spike', type: 'attack', cost: 1, action: (s) => { dealDamage(6); } },
+            firewall_patch: { id: 'firewall_patch', type: 'skill', cost: 1, action: (s) => { gainShield(5); } },
+            overclock: { id: 'overclock', type: 'skill', cost: 0, action: (s) => { gameState.player.ram += 1; drawCards(1); updateCombatUI(); } },
+            emp_blast: { id: 'emp_blast', type: 'attack', cost: 2, action: (s) => { dealDamage(14); } },
+            neural_hack: { id: 'neural_hack', type: 'skill', cost: 1, action: (s) => { drawCards(2); } },
+            ice_breaker: { id: 'ice_breaker', type: 'attack', cost: 1, action: (s) => { dealDamage(8); gameState.enemy.shield = Math.max(0, gameState.enemy.shield - 4); } },
+            deep_sleep: { id: 'deep_sleep', type: 'skill', cost: 1, action: (s) => { gameState.player.hp = Math.min(gameState.player.maxHp, gameState.player.hp + 6); updateCombatUI(); logCombat(t().logRestoredHp(6)); } },
+            overload_protocol: { id: 'overload_protocol', type: 'attack', cost: 2, action: (s) => { dealDamage(22); damagePlayerDirect(4); } },
+            ram_surge: { id: 'ram_surge', type: 'skill', cost: 0, action: (s) => { gameState.player.ram += 2; updateCombatUI(); logCombat(t().logRamSurge); } }
         };
 
         const REWARD_POOL = ['emp_blast', 'neural_hack', 'ice_breaker', 'deep_sleep', 'overload_protocol', 'ram_surge'];
 
         /* --- SECTORS & ENEMIES --- */
         const SECTORS = [
-            { id: 1, name: "Sector 1: Subnet", enemy: { name: "Subnet Scout", hp: 35, maxHp: 35, shield: 0, intents: [{ type: 'attack', val: 6, desc: 'Attack (6)' }, { type: 'shield', val: 5, desc: 'Fortify (5)' }] } },
-            { id: 2, name: "Sector 2: Corp Relay", enemy: { name: "Corp Relay Enforcer", hp: 55, maxHp: 55, shield: 0, intents: [{ type: 'attack', val: 10, desc: 'Attack (10)' }, { type: 'shield', val: 8, desc: 'Fortify (8)' }, { type: 'combo', val: 5, desc: 'Attack (5) + Shield (5)' }] } },
-            { id: 3, name: "Sector 3: Security Daemon", enemy: { name: "Black ICE Daemon", hp: 80, maxHp: 80, shield: 0, intents: [{ type: 'attack', val: 14, desc: 'Heavy Attack (14)' }, { type: 'shield', val: 12, desc: 'Fortify (12)' }, { type: 'attack', val: 8, desc: 'Attack (8)' }] } },
-            { id: 4, name: "Sector 4: Central Core", enemy: { name: "Omega Core Sentient", hp: 120, maxHp: 120, shield: 0, intents: [{ type: 'attack', val: 18, desc: 'Core Strike (18)' }, { type: 'shield', val: 15, desc: 'Reinforce (15)' }, { type: 'multi', val: 7, desc: 'Burst Strike (7x2)' }] } }
+            { id: 1, enemy: { hp: 35, maxHp: 35, shield: 0, intents: [{ type: 'attack', val: 6 }, { type: 'shield', val: 5 }] } },
+            { id: 2, enemy: { hp: 55, maxHp: 55, shield: 0, intents: [{ type: 'attack', val: 10 }, { type: 'shield', val: 8 }, { type: 'combo', val: 5 }] } },
+            { id: 3, enemy: { hp: 80, maxHp: 80, shield: 0, intents: [{ type: 'attack', val: 14 }, { type: 'shield', val: 12 }, { type: 'attack', val: 8 }] } },
+            { id: 4, enemy: { hp: 120, maxHp: 120, shield: 0, intents: [{ type: 'attack', val: 18 }, { type: 'shield', val: 15 }, { type: 'multi', val: 7 }] } }
         ];
 
         /* --- GAME STATE --- */
@@ -490,34 +746,35 @@
         function renderMap() {
             const container = document.getElementById('map-nodes-container');
             container.innerHTML = '';
+            const lang = t();
 
             SECTORS.forEach((sec, idx) => {
                 const isCurrent = idx === gameState.sectorIndex;
                 const isCleared = idx < gameState.sectorIndex;
-                const isLocked = idx > gameState.sectorIndex;
+                const secLocalized = lang.sectors[idx];
 
                 let cardClass = "bg-cyberPanel border-cyberBorder text-slate-500 opacity-60";
-                let badgeText = "LOCKED";
+                let badgeText = lang.nodeLocked;
                 let clickAction = "";
 
                 if (isCleared) {
                     cardClass = "bg-cyberCard border-cyberCyan/40 text-cyberCyan";
-                    badgeText = "CLEARED";
+                    badgeText = lang.nodeCleared;
                 } else if (isCurrent) {
                     cardClass = "bg-cyberPanel border-cyberCyan glow-cyan text-white cursor-pointer hover:bg-cyberCard";
-                    badgeText = "ACTIVE NODE";
+                    badgeText = lang.nodeActive;
                     clickAction = `startCombat(${idx})`;
                 }
 
                 container.innerHTML += `
                     <div onclick="${clickAction}" class="p-6 rounded-xl border ${cardClass} flex flex-col justify-between space-y-4 transition">
                         <div class="space-y-1">
-                            <span class="text-xs font-orbitron tracking-widest text-slate-400">SECTOR 0${sec.id}</span>
-                            <h3 class="font-orbitron font-bold text-lg">${sec.name.split(':')[1]}</h3>
+                            <span class="text-xs font-orbitron tracking-widest text-slate-400">${lang.sectorPrefix} 0${sec.id}</span>
+                            <h3 class="font-orbitron font-bold text-lg">${secLocalized.name.split(':')[1]}</h3>
                         </div>
                         <div class="flex justify-between items-center pt-4 border-t border-cyberBorder/60">
                             <span class="text-xs font-orbitron font-bold">${badgeText}</span>
-                            ${isCurrent ? '<span class="text-cyberCyan font-orbitron text-xs animate-pulse">▶ BREACH</span>' : ''}
+                            ${isCurrent ? `<span class="text-cyberCyan font-orbitron text-xs animate-pulse">${lang.nodeBreach}</span>` : ''}
                         </div>
                     </div>
                 `;
@@ -527,8 +784,9 @@
         /* --- COMBAT SYSTEM --- */
         function startCombat(sectorIdx) {
             const secData = SECTORS[sectorIdx];
+            const secLocalized = t().sectors[sectorIdx];
             gameState.enemy = {
-                name: secData.enemy.name,
+                sectorIdx: sectorIdx,
                 hp: secData.enemy.hp,
                 maxHp: secData.enemy.maxHp,
                 shield: 0,
@@ -536,15 +794,20 @@
             };
             gameState.currentIntentIndex = 0;
             gameState.player.shield = 0;
+            
+            // Consolidate all cards from hand and discard back into the main deck before resetting
+            gameState.player.deck = gameState.player.deck
+                .concat(gameState.player.hand)
+                .concat(gameState.player.discard);
             gameState.player.hand = [];
             gameState.player.discard = [];
             
-            // Shuffle full deck into deck pile
+            // Shuffle full deck into draw pile
             shuffleDeck();
 
             switchScreen('combat');
             clearCombatLog();
-            logCombat(`Infiltrated ${secData.name}. Enemy daemon [${gameState.enemy.name}] detected.`);
+            logCombat(t().logInfiltrated(secLocalized.name, secLocalized.enemyName));
             
             startPlayerTurn();
         }
@@ -567,7 +830,7 @@
             // Draw 5 cards
             drawCards(5);
             updateCombatUI();
-            logCombat(`--- Player Turn Started. RAM restored to ${gameState.player.maxRam}. ---`);
+            logCombat(t().logTurnStart(gameState.player.maxRam));
         }
 
         function drawCards(num) {
@@ -585,9 +848,10 @@
         function playCard(handIndex) {
             const cardKey = gameState.player.hand[handIndex];
             const cardObj = ALL_CARDS[cardKey];
+            const cardText = t().cards[cardKey];
 
             if (gameState.player.ram < cardObj.cost) {
-                logCombat(`[ERROR] Insufficient RAM to compile ${cardObj.name}.`);
+                logCombat(t().logNoRam(cardText.name));
                 playSound('click');
                 return;
             }
@@ -599,7 +863,7 @@
             gameState.player.discard.push(cardKey);
 
             playSound('card');
-            logCombat(`Executed subroutine: <span class="text-cyberCyan">${cardObj.name}</span>`);
+            logCombat(t().logExecuted(cardText.name));
 
             // Execute card effect
             cardObj.action(gameState);
@@ -627,18 +891,18 @@
             if (remainingDmg > 0) {
                 gameState.enemy.hp = Math.max(0, gameState.enemy.hp - remainingDmg);
             }
-            logCombat(`Dealt <span class="text-cyberPink">${amount}</span> damage to enemy.`);
+            logCombat(t().logDealtDmg(amount));
         }
 
         function gainShield(amount) {
             playSound('shield');
             gameState.player.shield += amount;
-            logCombat(`Compiled firewall defense: +<span class="text-cyberCyan">${amount}</span> Shield.`);
+            logCombat(t().logGainShield(amount));
         }
 
         function damagePlayerDirect(amount) {
             gameState.player.hp = Math.max(0, gameState.player.hp - amount);
-            logCombat(`[WARNING] Enemy breached firewall! Took <span class="text-cyberPink">${amount}</span> damage.`);
+            logCombat(t().logSelfDmg(amount));
             if (gameState.player.hp <= 0) {
                 loseCombat();
             }
@@ -651,7 +915,7 @@
             gameState.player.hand = [];
             updateCombatUI();
 
-            logCombat(`--- End of Player Turn. Daemon processing... ---`);
+            logCombat(t().logEndTurn);
             setTimeout(enemyTurn, 600);
         }
 
@@ -667,12 +931,12 @@
             } else if (intent.type === 'shield') {
                 gameState.enemy.shield += intent.val;
                 playSound('shield');
-                logCombat(`Enemy fortifies systems: +${intent.val} Shield.`);
+                logCombat(t().logEnemyFortify(intent.val));
             } else if (intent.type === 'combo') {
                 applyDamageToPlayer(intent.val);
                 gameState.enemy.shield += intent.val;
                 playSound('shield');
-                logCombat(`Enemy executes combo strike & fortify.`);
+                logCombat(t().logEnemyCombo);
             } else if (intent.type === 'multi') {
                 applyDamageToPlayer(intent.val);
                 applyDamageToPlayer(intent.val);
@@ -701,7 +965,7 @@
             if (remainingDmg > 0) {
                 gameState.player.hp = Math.max(0, gameState.player.hp - remainingDmg);
             }
-            logCombat(`Enemy attacks for <span class="text-cyberPink">${amount}</span> damage.`);
+            logCombat(t().logEnemyAttack(amount));
             updateCombatUI();
 
             if (gameState.player.hp <= 0) {
@@ -710,6 +974,9 @@
         }
 
         function updateCombatUI() {
+            const lang = t();
+            const secLocalized = lang.sectors[gameState.enemy.sectorIdx];
+
             // Player stats
             document.getElementById('combat-player-ram').innerText = `${gameState.player.ram}/${gameState.player.maxRam}`;
             document.getElementById('combat-player-hp-text').innerText = `${gameState.player.hp} / ${gameState.player.maxHp}`;
@@ -719,31 +986,32 @@
             document.getElementById('combat-disc-count').innerText = gameState.player.discard.length;
 
             // Enemy stats
-            document.getElementById('combat-enemy-name').innerText = gameState.enemy.name;
+            document.getElementById('combat-enemy-name').innerText = secLocalized.enemyName;
             document.getElementById('combat-enemy-hp-text').innerText = `${gameState.enemy.hp} / ${gameState.enemy.maxHp}`;
             document.getElementById('combat-enemy-hp-bar').style.width = `${(gameState.enemy.hp / gameState.enemy.maxHp) * 100}%`;
             document.getElementById('combat-enemy-shield').innerText = gameState.enemy.shield;
             
-            const currentIntent = gameState.enemy.intents[gameState.currentIntentIndex];
-            document.getElementById('combat-enemy-intent').innerText = currentIntent.desc;
+            document.getElementById('combat-enemy-intent').innerText = secLocalized.intents[gameState.currentIntentIndex];
 
             // Render hand
             const handContainer = document.getElementById('player-hand');
             handContainer.innerHTML = '';
             gameState.player.hand.forEach((cardKey, index) => {
                 const card = ALL_CARDS[cardKey];
+                const cardText = lang.cards[cardKey];
                 const canAfford = gameState.player.ram >= card.cost;
                 const borderCol = card.type === 'attack' ? 'border-cyberPink/50 hover:border-cyberPink' : 'border-cyberCyan/50 hover:border-cyberCyan';
                 const costCol = card.type === 'attack' ? 'text-cyberPink' : 'text-cyberCyan';
+                const typeLabel = card.type === 'attack' ? lang.cardTypeAttack : lang.cardTypeSkill;
 
                 handContainer.innerHTML += `
                     <div onclick="playCard(${index})" class="cyber-card-item w-36 bg-cyberCard border ${borderCol} rounded-xl p-3 flex flex-col justify-between cursor-pointer ${canAfford ? 'opacity-150' : 'opacity-65 grayscale'} relative select-none shadow-lg">
                         <div class="flex justify-between items-start">
-                            <span class="font-orbitron font-bold text-xs text-white">${card.name}</span>
+                            <span class="font-orbitron font-bold text-xs text-white">${cardText.name}</span>
                             <span class="font-orbitron font-bold text-xs px-2 py-0.5 rounded bg-cyberDark border border-cyberBorder ${costCol}">${card.cost} RAM</span>
                         </div>
-                        <p class="text-[11px] text-slate-300 my-3 leading-tight">${card.desc}</p>
-                        <div class="text-[9px] font-orbitron uppercase text-slate-500 tracking-wider">${card.type}</div>
+                        <p class="text-[11px] text-slate-300 my-3 leading-tight">${cardText.desc}</p>
+                        <div class="text-[9px] font-orbitron uppercase text-slate-500 tracking-wider">${typeLabel}</div>
                     </div>
                 `;
             });
@@ -768,9 +1036,17 @@
         /* --- COMBAT END / REWARDS --- */
         function winCombat() {
             playSound('click');
+            
+            // Immediately sweep hand and discard back into deck so deck count stays accurate on reward/map screens
+            gameState.player.deck = gameState.player.deck
+                .concat(gameState.player.hand)
+                .concat(gameState.player.discard);
+            gameState.player.hand = [];
+            gameState.player.discard = [];
+
             const creditsEarned = 35 + (gameState.sectorIndex * 25);
             gameState.credits += creditsEarned;
-            logCombat(`Sector cleared! Earned ${creditsEarned} credits.`);
+            logCombat(t().logSectorClear(creditsEarned));
 
             // Check if final boss defeated
             if (gameState.sectorIndex >= SECTORS.length - 1) {
@@ -782,7 +1058,7 @@
 
         function loseCombat() {
             playSound('click');
-            document.getElementById('gameover-sector').innerText = gameState.sectorIndex + 1;
+            document.getElementById('gameover-desc').innerHTML = t().gameoverDesc(gameState.sectorIndex + 1);
             switchScreen('gameover');
         }
 
@@ -795,26 +1071,31 @@
                 gameState.rewardOptions.push(poolCopy.splice(randIdx, 1)[0]);
             }
 
+            renderRewardCards();
+            switchScreen('reward');
+        }
+
+        function renderRewardCards() {
+            const lang = t();
             const container = document.getElementById('reward-cards-container');
             container.innerHTML = '';
 
-            gameState.rewardOptions.forEach((cardKey, index) => {
+            gameState.rewardOptions.forEach((cardKey) => {
                 const card = ALL_CARDS[cardKey];
+                const cardText = lang.cards[cardKey];
                 container.innerHTML += `
                     <div onclick="selectReward('${cardKey}')" class="cyber-card-item bg-cyberCard border border-cyberCyan/40 hover:border-cyberCyan rounded-xl p-5 flex flex-col justify-between cursor-pointer space-y-4 shadow-xl">
                         <div class="flex justify-between items-start">
-                            <span class="font-orbitron font-bold text-sm text-white">${card.name}</span>
+                            <span class="font-orbitron font-bold text-sm text-white">${cardText.name}</span>
                             <span class="font-orbitron font-bold text-xs px-2 py-1 rounded bg-cyberDark border border-cyberBorder text-cyberCyan">${card.cost} RAM</span>
                         </div>
-                        <p class="text-xs text-slate-300 leading-relaxed">${card.desc}</p>
+                        <p class="text-xs text-slate-300 leading-relaxed">${cardText.desc}</p>
                         <button class="w-full py-2 bg-cyberCyan/10 hover:bg-cyberCyan hover:text-cyberDark text-cyberCyan border border-cyberCyan/40 font-orbitron text-xs rounded transition font-bold">
-                            INTEGRATE SUBROUTINE
+                            ${lang.integrateSub}
                         </button>
                     </div>
                 `;
             });
-
-            switchScreen('reward');
         }
 
         function selectReward(cardKey) {
@@ -847,19 +1128,21 @@
         /* --- DECK VIEWER MODAL --- */
         function openDeckModal() {
             playSound('click');
+            const lang = t();
             const allCurrentCards = [...gameState.player.deck, ...gameState.player.hand, ...gameState.player.discard];
             const listContainer = document.getElementById('deck-modal-list');
             listContainer.innerHTML = '';
 
             allCurrentCards.forEach(cardKey => {
                 const card = ALL_CARDS[cardKey];
+                const cardText = lang.cards[cardKey];
                 listContainer.innerHTML += `
                     <div class="bg-cyberDark border border-cyberBorder rounded-lg p-3 flex flex-col justify-between space-y-2">
                         <div class="flex justify-between items-center">
-                            <span class="font-orbitron font-bold text-xs text-white">${card.name}</span>
+                            <span class="font-orbitron font-bold text-xs text-white">${cardText.name}</span>
                             <span class="font-orbitron text-xs text-cyberCyan">${card.cost} RAM</span>
                         </div>
-                        <p class="text-[11px] text-slate-400">${card.desc}</p>
+                        <p class="text-[11px] text-slate-400">${cardText.desc}</p>
                     </div>
                 `;
             });
