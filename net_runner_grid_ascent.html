@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NET-RUNNER: Grid Ascent</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyberDark: '#080c14',
+                        cyberPanel: '#0f172a',
+                        cyberCard: '#131c31',
+                        cyberCyan: '#00ffcc',
+                        cyberPink: '#ff0077',
+                        cyberAmber: '#ffb800',
+                        cyberBorder: '#1e293b'
+                    },
+                    fontFamily: {
+                        mono: ['"Share Tech Mono"', 'monospace'],
+                        orbitron: ['Orbitron', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #080c14;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        /* Cyber grid background effect */
+        .cyber-grid {
+            background-image: linear-gradient(to right, rgba(0, 255, 204, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(0, 255, 204, 0.05) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        /* Neon glows */
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+        }
+        .glow-cyan-lg {
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.5);
+        }
+        .glow-pink {
+            box-shadow: 0 0 15px rgba(255, 0, 119, 0.3);
+        }
+        .glow-amber {
+            box-shadow: 0 0 15px rgba(255, 184, 0, 0.3);
+        }
+        .text-glow-cyan {
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.7);
+        }
+        .text-glow-pink {
+            text-shadow: 0 0 10px rgba(255, 0, 119, 0.7);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #080c14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00ffcc;
+        }
+        /* Card hover animation */
+        .cyber-card-item {
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .cyber-card-item:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0, 255, 204, 0.25);
+            border-color: #00ffcc;
+        }
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(1000%); }
+        }
+        .scanline {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 204, 0.6), transparent);
+            animation: scanline 6s linear infinite;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="cyber-grid min-h-screen flex flex-col justify-between relative select-none">
+    <div class="scanline"></div>
+
+    <!-- HEADER / TOP STATUS -->
+    <header class="w-full bg-cyberPanel/90 border-b border-cyberBorder px-4 py-3 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-3 h-3 bg-cyberCyan rounded-full animate-ping"></div>
+                <h1 class="font-orbitron font-black text-xl text-cyberCyan tracking-wider text-glow-cyan">NET-RUNNER <span class="text-xs font-normal text-slate-400">v1.0.4</span></h1>
+            </div>
+            
+            <div id="global-stats" class="hidden flex items-center space-x-6 text-sm">
+                <div class="flex items-center space-x-2 bg-cyberDark/80 px-3 py-1 rounded border border-cyberBorder">
+                    <span class="text-slate-400">SECTOR:</span>
+                    <span id="stat-sector" class="font-bold text-cyberCyan font-orbitron">1 / 4</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-cyberDark/80 px-3 py-1 rounded border border-cyberBorder">
+                    <span class="text-slate-400">CREDITS:</span>
+                    <span id="stat-credits" class="font-bold text-cyberAmber font-orbitron">0</span>
+                </div>
+                <button onclick="openDeckModal()" class="px-3 py-1 bg-cyberCard hover:bg-cyberBorder text-cyberCyan border border-cyberCyan/40 rounded transition flex items-center space-x-1 font-orbitron text-xs">
+                    <span>DECK (<span id="stat-deck-count">8</span>)</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN GAME CONTAINER -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4 max-w-6xl mx-auto w-full relative z-10">
+
+        <!-- SCREEN 1: TITLE SCREEN -->
+        <div id="screen-title" class="flex flex-col items-center text-center space-y-8 py-12 max-w-2xl">
+            <div class="space-y-3">
+                <div class="inline-block px-4 py-1 bg-cyberPink/10 border border-cyberPink/30 text-cyberPink rounded-full text-xs font-orbitron tracking-widest uppercase mb-2">Cyberpunk Rogue-Lite Deckbuilder</div>
+                <h2 class="font-orbitron font-black text-5xl md:text-6xl text-white tracking-widest text-glow-cyan uppercase">GRID ASCENT</h2>
+                <p class="text-slate-400 text-lg max-w-lg mx-auto">Infiltrate the mega-corp mainframes, compile exploits into your deck, and purge the central daemon before your neural link flatlines.</p>
+            </div>
+
+            <div class="p-6 bg-cyberPanel/80 border border-cyberBorder rounded-xl glow-cyan w-full text-left space-y-4">
+                <h3 class="font-orbitron text-cyberCyan text-sm tracking-wider uppercase border-b border-cyberBorder pb-2">Operational Directives:</h3>
+                <ul class="text-sm space-y-2 text-slate-300">
+                    <li class="flex items-start space-x-2">
+                        <span class="text-cyberCyan font-bold">›</span>
+                        <span>Manage your <strong>RAM (Energy)</strong> each turn to deploy attack routines and firewall patches.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <span class="text-cyberCyan font-bold">›</span>
+                        <span>Analyze enemy <strong>Daemon Intents</strong> before making your tactical moves.</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        <span class="text-cyberCyan font-bold">›</span>
+                        <span>Clear 4 sectors: Subnet, Corp Relay, Security Daemon, and the Omega Core.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <button onclick="startNewRun()" class="px-8 py-4 bg-cyberCyan text-cyberDark font-orbitron font-bold text-lg rounded-lg glow-cyan hover:bg-white hover:shadow-[0_0_25px_rgba(255,255,255,0.7)] transition transform hover:-translate-y-1">
+                INITIALIZE RUN
+            </button>
+        </div>
+
+        <!-- SCREEN 2: RUN MAP -->
+        <div id="screen-map" class="hidden flex flex-col items-center w-full space-y-8 py-6">
+            <div class="text-center space-y-2">
+                <h2 class="font-orbitron text-2xl md:text-3xl font-bold text-cyberCyan text-glow-cyan uppercase">SECTOR MAP // UPLINK ROUTE</h2>
+                <p class="text-slate-400 text-sm">Select the next node to breach.</p>
+            </div>
+
+            <div id="map-nodes-container" class="grid grid-cols-1 md:grid-cols-4 gap-6 w-full max-w-5xl my-6">
+                <!-- Dynamically generated map nodes -->
+            </div>
+        </div>
+
+        <!-- SCREEN 3: COMBAT SCREEN -->
+        <div id="screen-combat" class="hidden flex flex-col w-full space-y-4 py-2">
+            
+            <!-- COMBAT TOP BAR: Player & Enemy Status -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                
+                <!-- PLAYER PANEL -->
+                <div class="bg-cyberPanel/90 border border-cyberBorder rounded-xl p-4 flex flex-col justify-between glow-cyan">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2.5 h-2.5 bg-cyberCyan rounded-full"></div>
+                            <span class="font-orbitron font-bold text-white tracking-wider">NET-RUNNER</span>
+                        </div>
+                        <div class="flex items-center space-x-2 bg-cyberDark px-3 py-1 rounded border border-cyberCyan/40">
+                            <span class="text-xs text-slate-400">RAM:</span>
+                            <span id="combat-player-ram" class="font-orbitron font-bold text-cyberAmber">3/3</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs font-orbitron">
+                            <span class="text-slate-400">INTEGRITY (HP)</span>
+                            <span id="combat-player-hp-text" class="text-cyberCyan font-bold">50 / 50</span>
+                        </div>
+                        <div class="w-full bg-cyberDark h-3 rounded-full overflow-hidden border border-cyberBorder">
+                            <div id="combat-player-hp-bar" class="bg-cyberCyan h-full transition-all duration-300" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between mt-3 text-xs">
+                        <div class="flex items-center space-x-1 text-cyberCyan">
+                            <span>SHIELD:</span>
+                            <span id="combat-player-shield" class="font-bold font-orbitron">0</span>
+                        </div>
+                        <div class="text-slate-400">
+                            Deck: <span id="combat-deck-count" class="text-white font-bold">0</span> | Disc: <span id="combat-disc-count" class="text-white font-bold">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ENEMY PANEL -->
+                <div class="bg-cyberPanel/90 border border-cyberBorder rounded-xl p-4 flex flex-col justify-between glow-pink">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2.5 h-2.5 bg-cyberPink rounded-full animate-pulse"></div>
+                            <span id="combat-enemy-name" class="font-orbitron font-bold text-cyberPink tracking-wider">SUBNET SCOUT</span>
+                        </div>
+                        <div class="bg-cyberPink/10 border border-cyberPink/30 px-3 py-1 rounded text-xs text-cyberPink font-orbitron flex items-center space-x-1">
+                            <span>INTENT:</span>
+                            <span id="combat-enemy-intent" class="font-bold">Attack (6)</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs font-orbitron">
+                            <span class="text-slate-400">DAEMON CORE (HP)</span>
+                            <span id="combat-enemy-hp-text" class="text-cyberPink font-bold">35 / 35</span>
+                        </div>
+                        <div class="w-full bg-cyberDark h-3 rounded-full overflow-hidden border border-cyberBorder">
+                            <div id="combat-enemy-hp-bar" class="bg-cyberPink h-full transition-all duration-300" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between mt-3 text-xs">
+                        <div class="flex items-center space-x-1 text-cyberPink">
+                            <span>SHIELD:</span>
+                            <span id="combat-enemy-shield" class="font-bold font-orbitron">0</span>
+                        </div>
+                        <div id="combat-enemy-status" class="text-slate-400 text-xs italic"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- COMBAT TERMINAL / LOG & ACTION CONTROLS -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                <div id="combat-log" class="md:col-span-3 bg-cyberDark/90 border border-cyberBorder rounded-xl p-3 h-24 overflow-y-auto text-xs font-mono text-slate-300 space-y-1">
+                    <div class="text-cyberCyan">&gt; Infiltration sequence engaged. Execute exploit cards.</div>
+                </div>
+                <div class="md:col-span-1 flex flex-col justify-center">
+                    <button onclick="endPlayerTurn()" class="w-full py-4 bg-gradient-to-r from-cyberPink to-purple-600 text-white font-orbitron font-bold rounded-xl glow-pink hover:opacity-90 transition active:scale-95 text-center">
+                        END TURN
+                    </button>
+                </div>
+            </div>
+
+            <!-- PLAYER HAND CONTAINER -->
+            <div class="bg-cyberPanel/90 border border-cyberBorder rounded-xl p-4 w-full">
+                <div class="text-xs font-orbitron text-slate-400 mb-2 flex justify-between items-center">
+                    <span>ACTIVE EXPLOIT HAND</span>
+                    <span>Click card to compile & execute</span>
+                </div>
+                <div id="player-hand" class="flex flex-wrap justify-center gap-3 min-h-[170px] items-center">
+                    <!-- Cards injected dynamically -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SCREEN 4: REWARD SCREEN -->
+        <div id="screen-reward" class="hidden flex flex-col items-center w-full space-y-6 py-8 max-w-3xl">
+            <div class="text-center space-y-2">
+                <div class="text-cyberCyan font-orbitron text-xs tracking-widest uppercase">SECTOR BREACHED SUCCESSFUL</div>
+                <h2 class="font-orbitron font-black text-3xl text-white text-glow-cyan">CODE REWARD ACQUIRED</h2>
+                <p class="text-slate-400 text-sm">Choose one exploit subroutine to integrate into your deck, or skip.</p>
+            </div>
+
+            <div id="reward-cards-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full my-4">
+                <!-- Reward cards injected here -->
+            </div>
+
+            <button onclick="skipReward()" class="px-6 py-2 bg-cyberCard hover:bg-cyberBorder text-slate-300 border border-cyberBorder rounded-lg font-orbitron text-sm transition">
+                Skip Reward & Proceed
+            </button>
+        </div>
+
+        <!-- SCREEN 5: GAME OVER SCREEN -->
+        <div id="screen-gameover" class="hidden flex flex-col items-center text-center space-y-6 py-16 max-w-xl">
+            <div class="w-16 h-16 bg-cyberPink/20 border border-cyberPink rounded-full flex items-center justify-center glow-pink text-cyberPink text-2xl font-orbitron">
+                ✕
+            </div>
+            <div class="space-y-2">
+                <h2 class="font-orbitron font-black text-4xl text-cyberPink text-glow-pink">NEURAL LINK SEVERED</h2>
+                <p class="text-slate-400 text-sm">Your firewall was breached and core integrity flatlined in Sector <span id="gameover-sector">1</span>.</p>
+            </div>
+            <button onclick="resetToTitle()" class="px-8 py-3 bg-cyberPink text-white font-orbitron font-bold rounded-lg glow-pink hover:opacity-90 transition">
+                REINITIALIZE SYSTEM
+            </button>
+        </div>
+
+        <!-- SCREEN 6: VICTORY SCREEN -->
+        <div id="screen-victory" class="hidden flex flex-col items-center text-center space-y-6 py-16 max-w-xl">
+            <div class="w-16 h-16 bg-cyberCyan/20 border border-cyberCyan rounded-full flex items-center justify-center glow-cyan text-cyberCyan text-2xl font-orbitron">
+                ✓
+            </div>
+            <div class="space-y-2">
+                <h2 class="font-orbitron font-black text-4xl text-cyberCyan text-glow-cyan">OMEGA CORE PURGED</h2>
+                <p class="text-slate-400 text-sm">You successfully navigated all 4 sectors, defeated the Sentient Daemon, and downloaded classified corporate secrets.</p>
+            </div>
+            <div class="p-4 bg-cyberPanel border border-cyberBorder rounded-xl w-full text-left space-y-2 font-orbitron text-xs">
+                <div class="flex justify-between">
+                    <span class="text-slate-400">FINAL CREDITS EARNED:</span>
+                    <span id="victory-credits" class="text-cyberAmber">0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">DECK SIZE:</span>
+                    <span id="victory-deck-size" class="text-cyberCyan">0</span>
+                </div>
+            </div>
+            <button onclick="resetToTitle()" class="px-8 py-3 bg-cyberCyan text-cyberDark font-orbitron font-bold rounded-lg glow-cyan hover:bg-white transition">
+                PLAY NEW RUN
+            </button>
+        </div>
+
+    </main>
+
+    <!-- DECK VIEWER MODAL -->
+    <div id="deck-modal" class="fixed inset-0 bg-cyberDark/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cyberPanel border border-cyberBorder rounded-xl max-w-3xl w-full p-6 space-y-4 glow-cyan max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-cyberBorder pb-3">
+                <h3 class="font-orbitron font-bold text-cyberCyan text-lg">CURRENT DECK MANIFEST</h3>
+                <button onclick="closeDeckModal()" class="text-slate-400 hover:text-white font-orbitron">✕ CLOSE</button>
+            </div>
+            <div id="deck-modal-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 overflow-y-auto p-2 flex-grow">
+                <!-- Modal cards injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="w-full text-center py-4 border-t border-cyberBorder text-slate-500 text-xs font-orbitron tracking-wider">
+        NET-RUNNER: GRID ASCENT // SECURE CONNECTION ESTABLISHED
+    </footer>
+
+    <!-- GAME LOGIC SCRIPT -->
+    <script>
+        /* --- SOUND SYNTHESIZER (Web Audio API) --- */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            const now = audioCtx.currentTime;
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'card') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'attack') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            } else if (type === 'shield') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(900, now + 0.12);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            }
+        }
+
+        /* --- CARD DATABASE --- */
+        const ALL_CARDS = {
+            data_spike: { id: 'data_spike', name: 'Data Spike', type: 'attack', cost: 1, desc: 'Deal 6 damage to enemy daemon.', action: (s) => { dealDamage(6); } },
+            firewall_patch: { id: 'firewall_patch', name: 'Firewall Patch', type: 'skill', cost: 1, desc: 'Gain 5 Shield.', action: (s) => { gainShield(5); } },
+            overclock: { id: 'overclock', name: 'Overclock', type: 'skill', cost: 0, desc: 'Gain 1 RAM and draw 1 card.', action: (s) => { gameState.player.ram += 1; drawCards(1); updateCombatUI(); } },
+            emp_blast: { id: 'emp_blast', name: 'EMP Blast', type: 'attack', cost: 2, desc: 'Deal 14 heavy damage.', action: (s) => { dealDamage(14); } },
+            neural_hack: { id: 'neural_hack', name: 'Neural Hack', type: 'skill', cost: 1, desc: 'Draw 2 cards from deck.', action: (s) => { drawCards(2); } },
+            ice_breaker: { id: 'ice_breaker', name: 'ICE Breaker', type: 'attack', cost: 1, desc: 'Deal 8 damage and strip 4 enemy shield.', action: (s) => { dealDamage(8); gameState.enemy.shield = Math.max(0, gameState.enemy.shield - 4); } },
+            deep_sleep: { id: 'deep_sleep', name: 'Deep Sleep', type: 'skill', cost: 1, desc: 'Restore 6 Integrity (HP).', action: (s) => { gameState.player.hp = Math.min(gameState.player.maxHp, gameState.player.hp + 6); updateCombatUI(); logCombat('Restored 6 HP.'); } },
+            overload_protocol: { id: 'overload_protocol', name: 'Overload Protocol', type: 'attack', cost: 2, desc: 'Deal 22 damage, take 4 self-damage.', action: (s) => { dealDamage(22); damagePlayerDirect(4); } },
+            ram_surge: { id: 'ram_surge', name: 'RAM Surge', type: 'skill', cost: 0, desc: 'Instantly gain 2 RAM.', action: (s) => { gameState.player.ram += 2; updateCombatUI(); logCombat('RAM Surge executed (+2 RAM).'); } }
+        };
+
+        const REWARD_POOL = ['emp_blast', 'neural_hack', 'ice_breaker', 'deep_sleep', 'overload_protocol', 'ram_surge'];
+
+        /* --- SECTORS & ENEMIES --- */
+        const SECTORS = [
+            { id: 1, name: "Sector 1: Subnet", enemy: { name: "Subnet Scout", hp: 35, maxHp: 35, shield: 0, intents: [{ type: 'attack', val: 6, desc: 'Attack (6)' }, { type: 'shield', val: 5, desc: 'Fortify (5)' }] } },
+            { id: 2, name: "Sector 2: Corp Relay", enemy: { name: "Corp Relay Enforcer", hp: 55, maxHp: 55, shield: 0, intents: [{ type: 'attack', val: 10, desc: 'Attack (10)' }, { type: 'shield', val: 8, desc: 'Fortify (8)' }, { type: 'combo', val: 5, desc: 'Attack (5) + Shield (5)' }] } },
+            { id: 3, name: "Sector 3: Security Daemon", enemy: { name: "Black ICE Daemon", hp: 80, maxHp: 80, shield: 0, intents: [{ type: 'attack', val: 14, desc: 'Heavy Attack (14)' }, { type: 'shield', val: 12, desc: 'Fortify (12)' }, { type: 'attack', val: 8, desc: 'Attack (8)' }] } },
+            { id: 4, name: "Sector 4: Central Core", enemy: { name: "Omega Core Sentient", hp: 120, maxHp: 120, shield: 0, intents: [{ type: 'attack', val: 18, desc: 'Core Strike (18)' }, { type: 'shield', val: 15, desc: 'Reinforce (15)' }, { type: 'multi', val: 7, desc: 'Burst Strike (7x2)' }] } }
+        ];
+
+        /* --- GAME STATE --- */
+        let gameState = {
+            screen: 'title',
+            sectorIndex: 0,
+            credits: 0,
+            player: {
+                maxHp: 50,
+                hp: 50,
+                shield: 0,
+                ram: 3,
+                maxRam: 3,
+                deck: [],
+                hand: [],
+                discard: []
+            },
+            enemy: null,
+            currentIntentIndex: 0,
+            rewardOptions: []
+        };
+
+        /* --- NAVIGATION / SCREENS --- */
+        function switchScreen(screenId) {
+            playSound('click');
+            const screens = ['title', 'map', 'combat', 'reward', 'gameover', 'victory'];
+            screens.forEach(s => {
+                document.getElementById(`screen-${s}`).classList.add('hidden');
+            });
+            document.getElementById(`screen-${screenId}`).classList.remove('hidden');
+            gameState.screen = screenId;
+
+            // Header stats visibility
+            const globalStats = document.getElementById('global-stats');
+            if (screenId === 'title' || screenId === 'gameover' || screenId === 'victory') {
+                globalStats.classList.add('hidden');
+            } else {
+                globalStats.classList.remove('hidden');
+                document.getElementById('stat-sector').innerText = `${gameState.sectorIndex + 1} / 4`;
+                document.getElementById('stat-credits').innerText = gameState.credits;
+                document.getElementById('stat-deck-count').innerText = gameState.player.deck.length + gameState.player.hand.length + gameState.player.discard.length;
+            }
+        }
+
+        /* --- START RUN --- */
+        function startNewRun() {
+            gameState.sectorIndex = 0;
+            gameState.credits = 0;
+            gameState.player.maxHp = 50;
+            gameState.player.hp = 50;
+            gameState.player.shield = 0;
+            
+            // Initial starting deck: 4x Data Spike, 3x Firewall Patch, 1x Overclock
+            gameState.player.deck = ['data_spike', 'data_spike', 'data_spike', 'data_spike', 'firewall_patch', 'firewall_patch', 'firewall_patch', 'overclock'];
+            gameState.player.hand = [];
+            gameState.player.discard = [];
+
+            renderMap();
+            switchScreen('map');
+        }
+
+        function resetToTitle() {
+            switchScreen('title');
+        }
+
+        /* --- MAP SYSTEM --- */
+        function renderMap() {
+            const container = document.getElementById('map-nodes-container');
+            container.innerHTML = '';
+
+            SECTORS.forEach((sec, idx) => {
+                const isCurrent = idx === gameState.sectorIndex;
+                const isCleared = idx < gameState.sectorIndex;
+                const isLocked = idx > gameState.sectorIndex;
+
+                let cardClass = "bg-cyberPanel border-cyberBorder text-slate-500 opacity-60";
+                let badgeText = "LOCKED";
+                let clickAction = "";
+
+                if (isCleared) {
+                    cardClass = "bg-cyberCard border-cyberCyan/40 text-cyberCyan";
+                    badgeText = "CLEARED";
+                } else if (isCurrent) {
+                    cardClass = "bg-cyberPanel border-cyberCyan glow-cyan text-white cursor-pointer hover:bg-cyberCard";
+                    badgeText = "ACTIVE NODE";
+                    clickAction = `startCombat(${idx})`;
+                }
+
+                container.innerHTML += `
+                    <div onclick="${clickAction}" class="p-6 rounded-xl border ${cardClass} flex flex-col justify-between space-y-4 transition">
+                        <div class="space-y-1">
+                            <span class="text-xs font-orbitron tracking-widest text-slate-400">SECTOR 0${sec.id}</span>
+                            <h3 class="font-orbitron font-bold text-lg">${sec.name.split(':')[1]}</h3>
+                        </div>
+                        <div class="flex justify-between items-center pt-4 border-t border-cyberBorder/60">
+                            <span class="text-xs font-orbitron font-bold">${badgeText}</span>
+                            ${isCurrent ? '<span class="text-cyberCyan font-orbitron text-xs animate-pulse">▶ BREACH</span>' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        /* --- COMBAT SYSTEM --- */
+        function startCombat(sectorIdx) {
+            const secData = SECTORS[sectorIdx];
+            gameState.enemy = {
+                name: secData.enemy.name,
+                hp: secData.enemy.hp,
+                maxHp: secData.enemy.maxHp,
+                shield: 0,
+                intents: JSON.parse(JSON.stringify(secData.enemy.intents))
+            };
+            gameState.currentIntentIndex = 0;
+            gameState.player.shield = 0;
+            gameState.player.hand = [];
+            gameState.player.discard = [];
+            
+            // Shuffle full deck into deck pile
+            shuffleDeck();
+
+            switchScreen('combat');
+            clearCombatLog();
+            logCombat(`Infiltrated ${secData.name}. Enemy daemon [${gameState.enemy.name}] detected.`);
+            
+            startPlayerTurn();
+        }
+
+        function shuffleDeck() {
+            gameState.player.deck = gameState.player.deck.concat(gameState.player.discard);
+            gameState.player.discard = [];
+            // Fisher-Yates shuffle
+            for (let i = gameState.player.deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [gameState.player.deck[i], gameState.player.deck[j]] = [gameState.player.deck[j], gameState.player.deck[i]];
+            }
+        }
+
+        function startPlayerTurn() {
+            gameState.player.ram = gameState.player.maxRam;
+            // Clear player shield at the start of player turn
+            gameState.player.shield = 0;
+            
+            // Draw 5 cards
+            drawCards(5);
+            updateCombatUI();
+            logCombat(`--- Player Turn Started. RAM restored to ${gameState.player.maxRam}. ---`);
+        }
+
+        function drawCards(num) {
+            for (let i = 0; i < num; i++) {
+                if (gameState.player.deck.length === 0) {
+                    if (gameState.player.discard.length === 0) break;
+                    shuffleDeck();
+                }
+                const drawnCard = gameState.player.deck.pop();
+                gameState.player.hand.push(drawnCard);
+            }
+            updateCombatUI();
+        }
+
+        function playCard(handIndex) {
+            const cardKey = gameState.player.hand[handIndex];
+            const cardObj = ALL_CARDS[cardKey];
+
+            if (gameState.player.ram < cardObj.cost) {
+                logCombat(`[ERROR] Insufficient RAM to compile ${cardObj.name}.`);
+                playSound('click');
+                return;
+            }
+
+            // Pay cost
+            gameState.player.ram -= cardObj.cost;
+            // Remove from hand, send to discard
+            gameState.player.hand.splice(handIndex, 1);
+            gameState.player.discard.push(cardKey);
+
+            playSound('card');
+            logCombat(`Executed subroutine: <span class="text-cyberCyan">${cardObj.name}</span>`);
+
+            // Execute card effect
+            cardObj.action(gameState);
+
+            updateCombatUI();
+
+            // Check if enemy defeated
+            if (gameState.enemy.hp <= 0) {
+                winCombat();
+            }
+        }
+
+        function dealDamage(amount) {
+            playSound('attack');
+            let remainingDmg = amount;
+            if (gameState.enemy.shield > 0) {
+                if (gameState.enemy.shield >= remainingDmg) {
+                    gameState.enemy.shield -= remainingDmg;
+                    remainingDmg = 0;
+                } else {
+                    remainingDmg -= gameState.enemy.shield;
+                    gameState.enemy.shield = 0;
+                }
+            }
+            if (remainingDmg > 0) {
+                gameState.enemy.hp = Math.max(0, gameState.enemy.hp - remainingDmg);
+            }
+            logCombat(`Dealt <span class="text-cyberPink">${amount}</span> damage to enemy.`);
+        }
+
+        function gainShield(amount) {
+            playSound('shield');
+            gameState.player.shield += amount;
+            logCombat(`Compiled firewall defense: +<span class="text-cyberCyan">${amount}</span> Shield.`);
+        }
+
+        function damagePlayerDirect(amount) {
+            gameState.player.hp = Math.max(0, gameState.player.hp - amount);
+            logCombat(`[WARNING] Enemy breached firewall! Took <span class="text-cyberPink">${amount}</span> damage.`);
+            if (gameState.player.hp <= 0) {
+                loseCombat();
+            }
+        }
+
+        function endPlayerTurn() {
+            playSound('click');
+            // Discard remaining hand
+            gameState.player.discard = gameState.player.discard.concat(gameState.player.hand);
+            gameState.player.hand = [];
+            updateCombatUI();
+
+            logCombat(`--- End of Player Turn. Daemon processing... ---`);
+            setTimeout(enemyTurn, 600);
+        }
+
+        function enemyTurn() {
+            if (gameState.enemy.hp <= 0) return;
+
+            // Get current intent
+            const intent = gameState.enemy.intents[gameState.currentIntentIndex];
+            
+            // Execute intent
+            if (intent.type === 'attack') {
+                applyDamageToPlayer(intent.val);
+            } else if (intent.type === 'shield') {
+                gameState.enemy.shield += intent.val;
+                playSound('shield');
+                logCombat(`Enemy fortifies systems: +${intent.val} Shield.`);
+            } else if (intent.type === 'combo') {
+                applyDamageToPlayer(intent.val);
+                gameState.enemy.shield += intent.val;
+                playSound('shield');
+                logCombat(`Enemy executes combo strike & fortify.`);
+            } else if (intent.type === 'multi') {
+                applyDamageToPlayer(intent.val);
+                applyDamageToPlayer(intent.val);
+            }
+
+            // Rotate intent
+            gameState.currentIntentIndex = (gameState.currentIntentIndex + 1) % gameState.enemy.intents.length;
+
+            if (gameState.player.hp > 0) {
+                setTimeout(startPlayerTurn, 500);
+            }
+        }
+
+        function applyDamageToPlayer(amount) {
+            playSound('attack');
+            let remainingDmg = amount;
+            if (gameState.player.shield > 0) {
+                if (gameState.player.shield >= remainingDmg) {
+                    gameState.player.shield -= remainingDmg;
+                    remainingDmg = 0;
+                } else {
+                    remainingDmg -= gameState.player.shield;
+                    gameState.player.shield = 0;
+                }
+            }
+            if (remainingDmg > 0) {
+                gameState.player.hp = Math.max(0, gameState.player.hp - remainingDmg);
+            }
+            logCombat(`Enemy attacks for <span class="text-cyberPink">${amount}</span> damage.`);
+            updateCombatUI();
+
+            if (gameState.player.hp <= 0) {
+                loseCombat();
+            }
+        }
+
+        function updateCombatUI() {
+            // Player stats
+            document.getElementById('combat-player-ram').innerText = `${gameState.player.ram}/${gameState.player.maxRam}`;
+            document.getElementById('combat-player-hp-text').innerText = `${gameState.player.hp} / ${gameState.player.maxHp}`;
+            document.getElementById('combat-player-hp-bar').style.width = `${(gameState.player.hp / gameState.player.maxHp) * 100}%`;
+            document.getElementById('combat-player-shield').innerText = gameState.player.shield;
+            document.getElementById('combat-deck-count').innerText = gameState.player.deck.length;
+            document.getElementById('combat-disc-count').innerText = gameState.player.discard.length;
+
+            // Enemy stats
+            document.getElementById('combat-enemy-name').innerText = gameState.enemy.name;
+            document.getElementById('combat-enemy-hp-text').innerText = `${gameState.enemy.hp} / ${gameState.enemy.maxHp}`;
+            document.getElementById('combat-enemy-hp-bar').style.width = `${(gameState.enemy.hp / gameState.enemy.maxHp) * 100}%`;
+            document.getElementById('combat-enemy-shield').innerText = gameState.enemy.shield;
+            
+            const currentIntent = gameState.enemy.intents[gameState.currentIntentIndex];
+            document.getElementById('combat-enemy-intent').innerText = currentIntent.desc;
+
+            // Render hand
+            const handContainer = document.getElementById('player-hand');
+            handContainer.innerHTML = '';
+            gameState.player.hand.forEach((cardKey, index) => {
+                const card = ALL_CARDS[cardKey];
+                const canAfford = gameState.player.ram >= card.cost;
+                const borderCol = card.type === 'attack' ? 'border-cyberPink/50 hover:border-cyberPink' : 'border-cyberCyan/50 hover:border-cyberCyan';
+                const costCol = card.type === 'attack' ? 'text-cyberPink' : 'text-cyberCyan';
+
+                handContainer.innerHTML += `
+                    <div onclick="playCard(${index})" class="cyber-card-item w-36 bg-cyberCard border ${borderCol} rounded-xl p-3 flex flex-col justify-between cursor-pointer ${canAfford ? 'opacity-150' : 'opacity-65 grayscale'} relative select-none shadow-lg">
+                        <div class="flex justify-between items-start">
+                            <span class="font-orbitron font-bold text-xs text-white">${card.name}</span>
+                            <span class="font-orbitron font-bold text-xs px-2 py-0.5 rounded bg-cyberDark border border-cyberBorder ${costCol}">${card.cost} RAM</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300 my-3 leading-tight">${card.desc}</p>
+                        <div class="text-[9px] font-orbitron uppercase text-slate-500 tracking-wider">${card.type}</div>
+                    </div>
+                `;
+            });
+
+            // Global stats top bar
+            document.getElementById('stat-deck-count').innerText = gameState.player.deck.length + gameState.player.hand.length + gameState.player.discard.length;
+        }
+
+        function logCombat(msg) {
+            const logBox = document.getElementById('combat-log');
+            logBox.innerHTML += `<div>&gt; ${msg}</div>`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function clearCombatLog() {
+            const logBox = document.getElementById('combat-log');
+            if (logBox) {
+                logBox.innerHTML = '';
+            }
+        }
+
+        /* --- COMBAT END / REWARDS --- */
+        function winCombat() {
+            playSound('click');
+            const creditsEarned = 35 + (gameState.sectorIndex * 25);
+            gameState.credits += creditsEarned;
+            logCombat(`Sector cleared! Earned ${creditsEarned} credits.`);
+
+            // Check if final boss defeated
+            if (gameState.sectorIndex >= SECTORS.length - 1) {
+                setTimeout(triggerVictory, 1000);
+            } else {
+                setTimeout(triggerRewardScreen, 1000);
+            }
+        }
+
+        function loseCombat() {
+            playSound('click');
+            document.getElementById('gameover-sector').innerText = gameState.sectorIndex + 1;
+            switchScreen('gameover');
+        }
+
+        function triggerRewardScreen() {
+            // Pick 3 random cards from reward pool
+            gameState.rewardOptions = [];
+            const poolCopy = [...REWARD_POOL];
+            for (let i = 0; i < 3; i++) {
+                const randIdx = Math.floor(Math.random() * poolCopy.length);
+                gameState.rewardOptions.push(poolCopy.splice(randIdx, 1)[0]);
+            }
+
+            const container = document.getElementById('reward-cards-container');
+            container.innerHTML = '';
+
+            gameState.rewardOptions.forEach((cardKey, index) => {
+                const card = ALL_CARDS[cardKey];
+                container.innerHTML += `
+                    <div onclick="selectReward('${cardKey}')" class="cyber-card-item bg-cyberCard border border-cyberCyan/40 hover:border-cyberCyan rounded-xl p-5 flex flex-col justify-between cursor-pointer space-y-4 shadow-xl">
+                        <div class="flex justify-between items-start">
+                            <span class="font-orbitron font-bold text-sm text-white">${card.name}</span>
+                            <span class="font-orbitron font-bold text-xs px-2 py-1 rounded bg-cyberDark border border-cyberBorder text-cyberCyan">${card.cost} RAM</span>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">${card.desc}</p>
+                        <button class="w-full py-2 bg-cyberCyan/10 hover:bg-cyberCyan hover:text-cyberDark text-cyberCyan border border-cyberCyan/40 font-orbitron text-xs rounded transition font-bold">
+                            INTEGRATE SUBROUTINE
+                        </button>
+                    </div>
+                `;
+            });
+
+            switchScreen('reward');
+        }
+
+        function selectReward(cardKey) {
+            playSound('click');
+            gameState.player.deck.push(cardKey);
+            advanceSector();
+        }
+
+        function skipReward() {
+            playSound('click');
+            advanceSector();
+        }
+
+        function advanceSector() {
+            gameState.sectorIndex++;
+            if (gameState.sectorIndex >= SECTORS.length) {
+                triggerVictory();
+            } else {
+                renderMap();
+                switchScreen('map');
+            }
+        }
+
+        function triggerVictory() {
+            document.getElementById('victory-credits').innerText = gameState.credits;
+            document.getElementById('victory-deck-size').innerText = gameState.player.deck.length + gameState.player.hand.length + gameState.player.discard.length;
+            switchScreen('victory');
+        }
+
+        /* --- DECK VIEWER MODAL --- */
+        function openDeckModal() {
+            playSound('click');
+            const allCurrentCards = [...gameState.player.deck, ...gameState.player.hand, ...gameState.player.discard];
+            const listContainer = document.getElementById('deck-modal-list');
+            listContainer.innerHTML = '';
+
+            allCurrentCards.forEach(cardKey => {
+                const card = ALL_CARDS[cardKey];
+                listContainer.innerHTML += `
+                    <div class="bg-cyberDark border border-cyberBorder rounded-lg p-3 flex flex-col justify-between space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-orbitron font-bold text-xs text-white">${card.name}</span>
+                            <span class="font-orbitron text-xs text-cyberCyan">${card.cost} RAM</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">${card.desc}</p>
+                    </div>
+                `;
+            });
+
+            document.getElementById('deck-modal').classList.remove('hidden');
+        }
+
+        function closeDeckModal() {
+            playSound('click');
+            document.getElementById('deck-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
